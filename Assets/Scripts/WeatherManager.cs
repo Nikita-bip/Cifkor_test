@@ -98,8 +98,12 @@ public class WeatherManager : MonoBehaviour
 
         foreach (var period in weatherResponse.properties.periods)
         {
-            System.DateTime startTime = System.DateTime.Parse(period.startTime);
-            System.DateTime endTime = System.DateTime.Parse(period.endTime);
+            // Парсим время и конвертируем в UTC
+            System.DateTime startTime = System.DateTime.Parse(period.startTime).ToUniversalTime();
+            System.DateTime endTime = System.DateTime.Parse(period.endTime).ToUniversalTime();
+
+            // Лог проверки
+            Debug.Log($"Checking period: {startTime} - {endTime}, Now: {now}");
 
             // Найден период, соответствующий текущему времени
             if (now >= startTime && now < endTime)
@@ -115,6 +119,7 @@ public class WeatherManager : MonoBehaviour
 
         Debug.LogWarning("No matching weather period found!");
     }
+
 
     private IEnumerator LoadWeatherIcon(string iconUrl)
     {

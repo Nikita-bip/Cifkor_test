@@ -15,11 +15,15 @@ public class FactsRequest : MonoBehaviour
     [SerializeField] private GameObject buttonPrefab; // Префаб кнопки
 
     private UnityWebRequestAsyncOperation currentRequest; // Для отслеживания текущего запроса
+    private bool isFactsLoaded = false; // Флаг, чтобы избежать повторной загрузки
 
-    private void Start()
+    public void OnFactsTabSelected()
     {
-        // Загружаем список фактов и создаем кнопки
-        StartCoroutine(LoadFacts());
+        // Загружаем факты, только если они ещё не загружены
+        if (!isFactsLoaded)
+        {
+            StartCoroutine(LoadFacts());
+        }
     }
 
     private IEnumerator LoadFacts()
@@ -55,26 +59,14 @@ public class FactsRequest : MonoBehaviour
             {
                 CreateButton(i + 1, breedWrapper.data[i]);
             }
+
+            isFactsLoaded = true; // Отмечаем, что факты загружены
         }
         catch (System.Exception ex)
         {
             Debug.LogError("Error parsing JSON: " + ex.Message);
         }
     }
-
-
-    //private void CreateButton(int index, Breed breed)
-    //{
-    //    GameObject buttonObj = Instantiate(buttonPrefab, buttonContainer);
-    //    Button button = buttonObj.GetComponent<Button>();
-    //    TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
-
-    //    // Устанавливаем текст кнопки
-    //    buttonText.text = $"{index} - {breed.attributes.name}";
-
-    //    // Добавляем событие для кнопки, вызывая GetFactById
-    //    button.onClick.AddListener(() => StartCoroutine(GetFactById(breed.id)));
-    //}
 
     private void CreateButton(int index, Breed breed)
     {
@@ -95,49 +87,6 @@ public class FactsRequest : MonoBehaviour
             ShowPopup(title, description);
         });
     }
-
-
-    private IEnumerator GetFactById(string factId)
-    {
-        string url = $"{baseUrl}/{factId}";
-
-        // Если есть текущий запрос, отменяем его
-        if (currentRequest != null)
-        {
-            currentRequest.webRequest.Abort();
-            Debug.Log("Previous request aborted.");
-        }
-
-        // Показать загрузчик
-        loader.SetActive(true);
-
-        UnityWebRequest request = UnityWebRequest.Get(url);
-        currentRequest = request.SendWebRequest(); // Сохраняем текущий запрос
-        yield return currentRequest;
-
-        // Скрыть загрузчик
-        loader.SetActive(false);
-
-        if (request.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("Request error: " + request.error);
-            yield break;
-        }
-
-        Debug.Log("Fact Response: " + request.downloadHandler.text);
-
-        // Десериализация и вывод данных
-        try
-        {
-            BreedWrapper factWrapper = JsonUtility.FromJson<BreedWrapper>("{\"data\":[" + request.downloadHandler.text + "]}");
-            ShowPopup(factWrapper.data[0].attributes.name, factWrapper.data[0].attributes.description);
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError("Error parsing JSON: " + ex.Message);
-        }
-    }
-
 
     private void ShowPopup(string title, string description)
     {

@@ -4,6 +4,7 @@ public class TabManager : MonoBehaviour
 {
     [SerializeField] private GameObject weatherTab;
     [SerializeField] private GameObject factsTab;
+    [SerializeField] private FactsRequest factsRequest;
 
     public bool isWeatherTabActive = true;
 
@@ -19,5 +20,6 @@ public class TabManager : MonoBehaviour
         weatherTab.SetActive(false);
         factsTab.SetActive(true);
         isWeatherTabActive = false;
+        factsRequest.OnFactsTabSelected();
     }
 }
