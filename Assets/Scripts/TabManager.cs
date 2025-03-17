@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class TabManager : MonoBehaviour
 {
-    [SerializeField] private GameObject weatherTab;
-    [SerializeField] private GameObject factsTab;
-    [SerializeField] private FactsRequest factsRequest;
+    [SerializeField] private GameObject weatherTab; // Панель вкладки с погодой
+    [SerializeField] private GameObject factsTab;   // Панель вкладки с фактами
+    [SerializeField] private WeatherView weatherView; // View для погоды
+    [SerializeField] private FactView factView;     // View для фактов
 
     public bool isWeatherTabActive = true;
 
@@ -13,6 +14,9 @@ public class TabManager : MonoBehaviour
         weatherTab.SetActive(true);
         factsTab.SetActive(false);
         isWeatherTabActive = true;
+
+        // Включаем обновление погоды
+        weatherView.OnWeatherTabSelected();
     }
 
     public void ShowFactsTab()
@@ -20,6 +24,11 @@ public class TabManager : MonoBehaviour
         weatherTab.SetActive(false);
         factsTab.SetActive(true);
         isWeatherTabActive = false;
-        factsRequest.OnFactsTabSelected();
+
+        // Останавливаем обновление погоды
+        weatherView.OnWeatherTabDeselected();
+
+        // Загрузка фактов
+        factView.OnFactsTabSelected();
     }
 }

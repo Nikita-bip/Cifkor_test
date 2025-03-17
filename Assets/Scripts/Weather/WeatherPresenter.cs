@@ -7,6 +7,7 @@ public class WeatherPresenter
     private readonly IWeatherView view;
     private readonly string weatherApiUrl = "https://api.weather.gov/gridpoints/TOP/32,81/forecast";
     private Coroutine weatherCoroutine;
+    private bool isWeatherActive = false;
     private UnityWebRequestAsyncOperation currentRequest;
 
     public WeatherPresenter(IWeatherView view)
@@ -14,11 +15,23 @@ public class WeatherPresenter
         this.view = view;
     }
 
+    public void OnWeatherTabSelected()
+    {
+        isWeatherActive = true;
+        StartWeatherUpdates();
+    }
+
+    public void OnWeatherTabDeselected()
+    {
+        isWeatherActive = false;
+        StopWeatherUpdates();
+    }
+
     public void StartWeatherUpdates()
     {
         if (weatherCoroutine == null)
         {
-            // Запускаем корутину через View
+            // Запускаем корутину только если активна вкладка
             weatherCoroutine = view.StartWeatherCoroutine(WeatherRequestLoop());
         }
     }
@@ -27,7 +40,7 @@ public class WeatherPresenter
     {
         if (weatherCoroutine != null)
         {
-            // Останавливаем корутину через View
+            // Останавливаем корутину, если вкладка стала неактивной
             view.StopWeatherCoroutine(weatherCoroutine);
             weatherCoroutine = null;
         }
@@ -42,11 +55,10 @@ public class WeatherPresenter
 
     private IEnumerator WeatherRequestLoop()
     {
-        while (true)
+        while (isWeatherActive)
         {
-            // Выполняем запрос и ждём 5 секунд перед следующим
             yield return GetWeather();
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(5f); // Пауза между запросами
         }
     }
 
@@ -107,4 +119,27 @@ public class WeatherPresenter
 
         throw new System.Exception("No matching weather period found!");
     }
+}
+
+[System.Serializable]
+public class WeatherResponse
+{
+    public WeatherProperties properties;
+}
+
+[System.Serializable]
+public class WeatherProperties
+{
+    public WeatherPeriod[] periods;
+}
+
+[System.Serializable]
+public class WeatherPeriod
+{
+    public string startTime;
+    public string endTime;
+    public int temperature;
+    public string temperatureUnit;
+    public string shortForecast;
+    public string icon;
 }

@@ -59,6 +59,17 @@ public class WeatherView : MonoBehaviour, IWeatherView
         }
     }
 
+    public void OnWeatherTabSelected()
+    {
+        presenter.OnWeatherTabSelected();
+    }
+
+    public void OnWeatherTabDeselected()
+    {
+        presenter.OnWeatherTabDeselected();
+    }
+
+
     private IEnumerator LoadWeatherIcon(string url)
     {
         UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
