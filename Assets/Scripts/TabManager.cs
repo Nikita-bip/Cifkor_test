@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class TabManager : MonoBehaviour
 {
-    [SerializeField] private GameObject weatherTab; // Панель вкладки с погодой
-    [SerializeField] private GameObject factsTab;   // Панель вкладки с фактами
-    [SerializeField] private WeatherView weatherView; // View для погоды
-    [SerializeField] private FactView factView;     // View для фактов
+    [SerializeField] private GameObject weatherTab;
+    [SerializeField] private GameObject factsTab;
+    [SerializeField] private WeatherView weatherView;
+    [SerializeField] private FactView factView;    
 
     public bool isWeatherTabActive = true;
 

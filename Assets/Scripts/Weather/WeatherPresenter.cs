@@ -1,18 +1,21 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using Zenject;
 
 public class WeatherPresenter
 {
-    private readonly IWeatherView view;
-    private readonly string weatherApiUrl = "https://api.weather.gov/gridpoints/TOP/32,81/forecast";
     private Coroutine weatherCoroutine;
     private bool isWeatherActive = false;
     private UnityWebRequestAsyncOperation currentRequest;
+    private readonly IWeatherView view;
+    private readonly string weatherApiUrl;
 
-    public WeatherPresenter(IWeatherView view)
+    [Inject]
+    public WeatherPresenter(IWeatherView view, [Inject(Id = "WeatherApiUrl")] string apiUrl)
     {
         this.view = view;
+        this.weatherApiUrl = apiUrl;
     }
 
     public void OnWeatherTabSelected()

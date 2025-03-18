@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
+using Zenject;
 
 public class WeatherView : MonoBehaviour, IWeatherView
 {
@@ -9,11 +10,13 @@ public class WeatherView : MonoBehaviour, IWeatherView
     [SerializeField] private Text forecastText;
     [SerializeField] private Image weatherIcon;
     [SerializeField] private GameObject loader; // Индикатор загрузки
+
     private WeatherPresenter presenter;
 
-    private void Awake()
+    [Inject]
+    public void Construct(WeatherPresenter presenter)
     {
-        presenter = new WeatherPresenter(this);
+        this.presenter = presenter;
     }
 
     private void OnEnable()

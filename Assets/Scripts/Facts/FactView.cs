@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 public class FactView : MonoBehaviour, IFactView
 {
@@ -13,9 +14,10 @@ public class FactView : MonoBehaviour, IFactView
     [SerializeField] private GameObject buttonPrefab; // Префаб кнопки
     private FactPresenter presenter;
 
-    private void Awake()
+    [Inject]
+    public void Construct(FactPresenter presenter)
     {
-        presenter = new FactPresenter(this);
+        this.presenter = presenter;
     }
 
     public void OnFactsTabSelected()

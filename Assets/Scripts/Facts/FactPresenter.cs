@@ -1,14 +1,16 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using Zenject;
 
 public class FactPresenter
 {
-    private readonly IFactView view;
-    private readonly string baseUrl = "https://dogapi.dog/api/v2/breeds";
     private bool isFactsLoaded = false;
     private Coroutine loadFactsCoroutine;
+    private readonly IFactView view;
+    private readonly string baseUrl = "https://dogapi.dog/api/v2/breeds";
 
+    [Inject]
     public FactPresenter(IFactView view)
     {
         this.view = view;
