@@ -11,7 +11,7 @@ public class FactView : MonoBehaviour, IFactView
     [SerializeField] private TextMeshProUGUI _popupTitle;
     [SerializeField] private TextMeshProUGUI _popupDescription;
     [SerializeField] private Transform _buttonContainer;
-    [SerializeField] private GameObject _buttonPrefab;
+    [SerializeField] private ButtonPool _buttonPool;
 
     private FactPresenter _presenter;
 
@@ -28,21 +28,29 @@ public class FactView : MonoBehaviour, IFactView
 
     public void DisplayFacts(FactModel[] facts)
     {
+        // Очистка существующих кнопок
+        foreach (Transform child in _buttonContainer)
+        {
+            var button = child.gameObject;
+            _buttonPool.ReturnButton(button); // Возвращаем в пул
+        }
+
+        // Создание новых кнопок
         for (int i = 0; i < facts.Length; i++)
         {
             var fact = facts[i];
-            GameObject buttonObj = Instantiate(_buttonPrefab, _buttonContainer);
-            Button button = buttonObj.GetComponent<Button>();
-            TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+            var buttonObj = _buttonPool.GetButton();
+            buttonObj.transform.SetParent(_buttonContainer, false);
 
-            buttonText.text = $"{i + 1} - {fact.Name ?? "Unknown"}";
+            var buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
+            buttonText.text = $"{i + 1} - {fact.Name}";
 
-            button.onClick.AddListener(() =>
-            {
-                _presenter.OnFactSelected(fact);
-            });
+            var button = buttonObj.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => _presenter.OnFactSelected(fact));
         }
     }
+
 
     public void ShowPopup(string title, string description)
     {
