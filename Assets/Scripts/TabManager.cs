@@ -1,34 +1,39 @@
 using UnityEngine;
+using Zenject;
 
 public class TabManager : MonoBehaviour
 {
-    [SerializeField] private GameObject weatherTab;
-    [SerializeField] private GameObject factsTab;
-    [SerializeField] private WeatherView weatherView;
-    [SerializeField] private FactView factView;    
+    [SerializeField] private GameObject _weatherTab;
+    [SerializeField] private GameObject _factsTab;
+    [SerializeField] private WeatherView _weatherView;
+    [SerializeField] private FactView _factView;
 
     public bool isWeatherTabActive = true;
+    private FactPresenter _factPresenter;
+
+    [Inject]
+    public void Construct(FactPresenter factPresenter)
+    {
+        this._factPresenter = factPresenter;
+    }
 
     public void ShowWeatherTab()
     {
-        weatherTab.SetActive(true);
-        factsTab.SetActive(false);
+        _weatherTab.SetActive(true);
+        _factsTab.SetActive(false);
         isWeatherTabActive = true;
 
-        // Включаем обновление погоды
-        weatherView.OnWeatherTabSelected();
+        _factPresenter.CancelFactRequest();
+        _weatherView.OnWeatherTabSelected();
     }
 
     public void ShowFactsTab()
     {
-        weatherTab.SetActive(false);
-        factsTab.SetActive(true);
+        _weatherTab.SetActive(false);
+        _factsTab.SetActive(true);
         isWeatherTabActive = false;
 
-        // Останавливаем обновление погоды
-        weatherView.OnWeatherTabDeselected();
-
-        // Загрузка фактов
-        factView.OnFactsTabSelected();
+        _weatherView.OnWeatherTabDeselected();
+        _factView.OnFactsTabSelected();
     }
 }

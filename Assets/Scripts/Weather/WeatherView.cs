@@ -6,47 +6,45 @@ using Zenject;
 
 public class WeatherView : MonoBehaviour, IWeatherView
 {
-    [SerializeField] private Text temperatureText;
-    [SerializeField] private Text forecastText;
-    [SerializeField] private Image weatherIcon;
-    [SerializeField] private GameObject loader; // Индикатор загрузки
+    [SerializeField] private Text _temperatureText;
+    [SerializeField] private Text _forecastText;
+    [SerializeField] private Image _weatherIcon;
+    [SerializeField] private GameObject _loader;
 
-    private WeatherPresenter presenter;
+    private WeatherPresenter _presenter;
 
     [Inject]
     public void Construct(WeatherPresenter presenter)
     {
-        this.presenter = presenter;
+        this._presenter = presenter;
     }
 
     private void OnEnable()
     {
-        // Запуск логики обновления погоды при активации вкладки
-        presenter.StartWeatherUpdates();
+        _presenter.StartWeatherUpdates();
     }
 
     private void OnDisable()
     {
-        // Остановка логики при переключении вкладки
-        presenter.StopWeatherUpdates();
+        _presenter.StopWeatherUpdates();
     }
 
     public void UpdateWeather(WeatherModel model)
     {
-        temperatureText.text = $"Сегодня - {model.Temperature}";
-        forecastText.text = model.Forecast;
+        _temperatureText.text = $"Сегодня - {model.Temperature}";
+        _forecastText.text = model.Forecast;
         StartCoroutine(LoadWeatherIcon(model.IconUrl));
     }
 
     public void ShowError(string message)
     {
-        temperatureText.text = "Ошибка";
-        forecastText.text = message;
+        _temperatureText.text = "Ошибка";
+        _forecastText.text = message;
     }
 
     public void ShowLoader(bool isActive)
     {
-        loader.SetActive(isActive);
+        _loader.SetActive(isActive);
     }
 
     public Coroutine StartWeatherCoroutine(IEnumerator routine)
@@ -64,12 +62,12 @@ public class WeatherView : MonoBehaviour, IWeatherView
 
     public void OnWeatherTabSelected()
     {
-        presenter.OnWeatherTabSelected();
+        _presenter.OnWeatherTabSelected();
     }
 
     public void OnWeatherTabDeselected()
     {
-        presenter.OnWeatherTabDeselected();
+        _presenter.OnWeatherTabDeselected();
     }
 
 
@@ -80,12 +78,11 @@ public class WeatherView : MonoBehaviour, IWeatherView
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("Ошибка загрузки иконки: " + request.error);
             yield break;
         }
 
         Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
-        weatherIcon.sprite = Sprite.Create(
+        _weatherIcon.sprite = Sprite.Create(
             texture,
             new Rect(0, 0, texture.width, texture.height),
             new Vector2(0.5f, 0.5f)

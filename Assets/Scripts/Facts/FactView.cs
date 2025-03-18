@@ -6,23 +6,24 @@ using Zenject;
 
 public class FactView : MonoBehaviour, IFactView
 {
-    [SerializeField] private GameObject loader; // Индикатор загрузки
-    [SerializeField] private GameObject popup; // Попап для фактов
-    [SerializeField] private TextMeshProUGUI popupTitle; // Заголовок попапа
-    [SerializeField] private TextMeshProUGUI popupDescription; // Описание попапа
-    [SerializeField] private Transform buttonContainer; // Контейнер для кнопок
-    [SerializeField] private GameObject buttonPrefab; // Префаб кнопки
-    private FactPresenter presenter;
+    [SerializeField] private GameObject _loader;
+    [SerializeField] private GameObject _popup;
+    [SerializeField] private TextMeshProUGUI _popupTitle;
+    [SerializeField] private TextMeshProUGUI _popupDescription;
+    [SerializeField] private Transform _buttonContainer;
+    [SerializeField] private GameObject _buttonPrefab;
+
+    private FactPresenter _presenter;
 
     [Inject]
     public void Construct(FactPresenter presenter)
     {
-        this.presenter = presenter;
+        this._presenter = presenter;
     }
 
     public void OnFactsTabSelected()
     {
-        presenter.LoadFacts();
+        _presenter.LoadFacts();
     }
 
     public void DisplayFacts(FactModel[] facts)
@@ -30,36 +31,39 @@ public class FactView : MonoBehaviour, IFactView
         for (int i = 0; i < facts.Length; i++)
         {
             var fact = facts[i];
-            GameObject buttonObj = Instantiate(buttonPrefab, buttonContainer);
+            GameObject buttonObj = Instantiate(_buttonPrefab, _buttonContainer);
             Button button = buttonObj.GetComponent<Button>();
             TextMeshProUGUI buttonText = buttonObj.GetComponentInChildren<TextMeshProUGUI>();
 
-            // Устанавливаем текст кнопки в формате "1 - name"
-            buttonText.text = $"{i + 1} - {fact.Name}";
+            buttonText.text = $"{i + 1} - {fact.Name ?? "Unknown"}";
 
-            // Добавляем событие для кнопки
             button.onClick.AddListener(() =>
             {
-                presenter.OnFactSelected(fact);
+                _presenter.OnFactSelected(fact);
             });
         }
     }
 
     public void ShowPopup(string title, string description)
     {
-        popupTitle.text = title;
-        popupDescription.text = description;
-        popup.SetActive(true);
+        if (string.IsNullOrEmpty(title) || string.IsNullOrEmpty(description))
+        {
+            Debug.LogWarning("Popup data is missing.");
+        }
+
+        _popupTitle.text = title ?? "No Title Available";
+        _popupDescription.text = description ?? "No Description Available.";
+        _popup.SetActive(true);
     }
 
     public void ClosePopup()
     {
-        popup.SetActive(false);
+        _popup.SetActive(false);
     }
 
     public void ShowLoader(bool isActive)
     {
-        loader.SetActive(isActive);
+        _loader.SetActive(isActive);
     }
 
     public void ShowError(string message)

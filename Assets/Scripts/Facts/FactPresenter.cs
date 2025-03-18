@@ -5,37 +5,56 @@ using Zenject;
 
 public class FactPresenter
 {
-    private bool isFactsLoaded = false;
-    private Coroutine loadFactsCoroutine;
-    private readonly IFactView view;
-    private readonly string baseUrl = "https://dogapi.dog/api/v2/breeds";
+    private bool _isFactsLoaded = false;
+    private Coroutine _loadFactsCoroutine;
+    private Coroutine _loadFactDetailsCoroutine;
+    private readonly IFactView _view;
+    private readonly string _baseUrl = "https://dogapi.dog/api/v2/breeds";
+    private UnityWebRequestAsyncOperation _currentRequest;
 
     [Inject]
     public FactPresenter(IFactView view)
     {
-        this.view = view;
+        this._view = view;
     }
 
     public void LoadFacts()
     {
-        if (!isFactsLoaded && loadFactsCoroutine == null)
+        if (!_isFactsLoaded && _loadFactsCoroutine == null)
         {
-            view.ShowLoader(true);
-            loadFactsCoroutine = view.StartFactCoroutine(FetchFacts());
+            _view.ShowLoader(true);
+            _loadFactsCoroutine = _view.StartFactCoroutine(FetchFacts());
         }
     }
 
+    public void OnFactSelected(FactModel fact)
+    {
+        if (fact == null)
+        {
+            Debug.LogError("Fact is null!");
+            return;
+        }
+
+        string name = string.IsNullOrEmpty(fact.Name) ? "No Title Available" : fact.Name;
+        string description = string.IsNullOrEmpty(fact.Description) ? "No Description Available." : fact.Description;
+
+        _view.ShowPopup(name, description);
+    }
+
+
     private IEnumerator FetchFacts()
     {
-        UnityWebRequest request = UnityWebRequest.Get(baseUrl);
-        yield return request.SendWebRequest();
+        UnityWebRequest request = UnityWebRequest.Get(_baseUrl);
+        _currentRequest = request.SendWebRequest();
+        yield return _currentRequest;
 
-        view.ShowLoader(false);
-        loadFactsCoroutine = null;
+        _view.ShowLoader(false);
+        _loadFactsCoroutine = null;
+        _currentRequest = null;
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            view.ShowError("Failed to load facts.");
+            _view.ShowError("Failed to load facts.");
             yield break;
         }
 
@@ -43,9 +62,9 @@ public class FactPresenter
         {
             BreedWrapper breedWrapper = JsonUtility.FromJson<BreedWrapper>(request.downloadHandler.text);
 
-            if (breedWrapper == null || breedWrapper.data == null || breedWrapper.data.Length == 0)
+            if (breedWrapper?.data == null || breedWrapper.data.Length == 0)
             {
-                view.ShowError("No facts found.");
+                _view.ShowError("No facts found.");
                 yield break;
             }
 
@@ -60,20 +79,39 @@ public class FactPresenter
                 };
             }
 
-            isFactsLoaded = true;
-            view.DisplayFacts(facts);
+            _isFactsLoaded = true;
+            _view.DisplayFacts(facts);
         }
         catch (System.Exception ex)
         {
-            view.ShowError("Error parsing facts: " + ex.Message);
+            _view.ShowError("Error parsing facts: " + ex.Message);
         }
     }
 
-    public void OnFactSelected(FactModel fact)
+    public void CancelFactRequest()
     {
-        view.ShowPopup(fact.Name, fact.Description);
+        if (_currentRequest != null)
+        {
+            _currentRequest.webRequest.Abort();
+            _currentRequest = null;
+        }
+
+        if (_loadFactDetailsCoroutine != null)
+        {
+            _view.StopFactCoroutine(_loadFactDetailsCoroutine);
+            _loadFactDetailsCoroutine = null;
+        }
+
+        if (_loadFactsCoroutine != null)
+        {
+            _view.StopFactCoroutine(_loadFactsCoroutine);
+            _loadFactsCoroutine = null;
+        }
+
+        _view.ShowLoader(false);
     }
 }
+
 [System.Serializable]
 public class BreedWrapper
 {

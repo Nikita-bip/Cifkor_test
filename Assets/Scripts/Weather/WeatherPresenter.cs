@@ -5,98 +5,93 @@ using Zenject;
 
 public class WeatherPresenter
 {
-    private Coroutine weatherCoroutine;
-    private bool isWeatherActive = false;
-    private UnityWebRequestAsyncOperation currentRequest;
-    private readonly IWeatherView view;
-    private readonly string weatherApiUrl;
+    private Coroutine _weatherCoroutine;
+    private bool _isWeatherActive = false;
+    private UnityWebRequestAsyncOperation _currentRequest;
+    private readonly IWeatherView _view;
+    private readonly string _weatherApiUrl;
 
     [Inject]
     public WeatherPresenter(IWeatherView view, [Inject(Id = "WeatherApiUrl")] string apiUrl)
     {
-        this.view = view;
-        this.weatherApiUrl = apiUrl;
+        this._view = view;
+        this._weatherApiUrl = apiUrl;
     }
 
     public void OnWeatherTabSelected()
     {
-        isWeatherActive = true;
+        _isWeatherActive = true;
         StartWeatherUpdates();
     }
 
     public void OnWeatherTabDeselected()
     {
-        isWeatherActive = false;
+        _isWeatherActive = false;
         StopWeatherUpdates();
     }
 
     public void StartWeatherUpdates()
     {
-        if (weatherCoroutine == null)
+        if (_weatherCoroutine == null)
         {
-            // Запускаем корутину только если активна вкладка
-            weatherCoroutine = view.StartWeatherCoroutine(WeatherRequestLoop());
+            _weatherCoroutine = _view.StartWeatherCoroutine(WeatherRequestLoop());
         }
     }
 
     public void StopWeatherUpdates()
     {
-        if (weatherCoroutine != null)
+        if (_weatherCoroutine != null)
         {
-            // Останавливаем корутину, если вкладка стала неактивной
-            view.StopWeatherCoroutine(weatherCoroutine);
-            weatherCoroutine = null;
+            _view.StopWeatherCoroutine(_weatherCoroutine);
+            _weatherCoroutine = null;
         }
 
-        // Отменяем текущий запрос, если он выполняется
-        if (currentRequest != null)
+        if (_currentRequest != null)
         {
-            currentRequest.webRequest.Abort();
-            Debug.Log("Weather request canceled.");
+            _currentRequest.webRequest.Abort();
         }
     }
 
     private IEnumerator WeatherRequestLoop()
     {
-        while (isWeatherActive)
+        while (_isWeatherActive)
         {
             yield return GetWeather();
-            yield return new WaitForSeconds(5f); // Пауза между запросами
+            yield return new WaitForSeconds(5f);
         }
     }
 
     private IEnumerator GetWeather()
     {
-        // Показываем индикатор загрузки
-        view.ShowLoader(true);
+        if (_currentRequest != null)
+        {
+            _currentRequest.webRequest.Abort();
+        }
 
-        UnityWebRequest request = UnityWebRequest.Get(weatherApiUrl);
-        currentRequest = request.SendWebRequest();
-        yield return currentRequest;
+        _view.ShowLoader(true);
 
-        // Прячем индикатор загрузки
-        view.ShowLoader(false);
+        UnityWebRequest request = UnityWebRequest.Get(_weatherApiUrl);
+        _currentRequest = request.SendWebRequest();
+        yield return _currentRequest;
+
+        _view.ShowLoader(false);
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            Debug.LogError("Weather request error: " + request.error);
-            view.ShowError("Ошибка загрузки данных.");
+            _view.ShowError("Ошибка загрузки данных.");
             yield break;
         }
 
-        Debug.Log("Weather Response: " + request.downloadHandler.text);
-
-        // Десериализация данных
         try
         {
             WeatherResponse response = JsonUtility.FromJson<WeatherResponse>(request.downloadHandler.text);
             WeatherModel model = GetWeatherModelFromResponse(response);
-            view.UpdateWeather(model);
+            _view.UpdateWeather(model);
         }
         catch (System.Exception ex)
         {
             Debug.LogError("Error parsing weather JSON: " + ex.Message);
-            view.ShowError("Ошибка обработки данных.");
+            _view.ShowError("Ошибка обработки данных.");
         }
     }
 

@@ -704,10 +704,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53a6b1d742aecdc4ab1770e5812d9f84, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  temperatureText: {fileID: 1358272410}
-  forecastText: {fileID: 674813815}
-  weatherIcon: {fileID: 1193738976}
-  loader: {fileID: 375619786}
+  _temperatureText: {fileID: 1358272410}
+  _forecastText: {fileID: 674813815}
+  _weatherIcon: {fileID: 1193738976}
+  _loader: {fileID: 375619786}
 --- !u!1 &493027032
 GameObject:
   m_ObjectHideFlags: 0
@@ -1430,7 +1430,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.5, y: -226.89993}
+  m_AnchoredPosition: {x: -0.5, y: -226.8999}
   m_SizeDelta: {x: 0, y: -607}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &822327732
@@ -1859,10 +1859,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d79696a36fbfc97408add3cf4243eeb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weatherTab: {fileID: 1335546599}
-  factsTab: {fileID: 813545803}
-  weatherView: {fileID: 465187560}
-  factView: {fileID: 2143183678}
+  _weatherTab: {fileID: 1335546599}
+  _factsTab: {fileID: 813545803}
+  _weatherView: {fileID: 465187560}
+  _factView: {fileID: 2143183678}
   isWeatherTabActive: 1
 --- !u!4 &1166540829
 Transform:
@@ -2757,12 +2757,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512272b2dce8ec34cad30074663427e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  loader: {fileID: 375619786}
-  popup: {fileID: 954964963}
-  popupTitle: {fileID: 208636436}
-  popupDescription: {fileID: 208636435}
-  buttonContainer: {fileID: 2078394716}
-  buttonPrefab: {fileID: 4412311360266526341, guid: 934b415bb575849468e8e6ef48539d97, type: 3}
+  _loader: {fileID: 375619786}
+  _popup: {fileID: 954964963}
+  _popupTitle: {fileID: 208636436}
+  _popupDescription: {fileID: 208636435}
+  _buttonContainer: {fileID: 2078394716}
+  _buttonPrefab: {fileID: 4412311360266526341, guid: 934b415bb575849468e8e6ef48539d97, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
