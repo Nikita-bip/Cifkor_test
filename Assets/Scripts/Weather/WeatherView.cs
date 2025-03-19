@@ -7,7 +7,6 @@ using Zenject;
 public class WeatherView : MonoBehaviour, IWeatherView
 {
     [SerializeField] private Text _temperatureText;
-    [SerializeField] private Text _forecastText;
     [SerializeField] private Image _weatherIcon;
     [SerializeField] private GameObject _loader;
 
@@ -32,14 +31,12 @@ public class WeatherView : MonoBehaviour, IWeatherView
     public void UpdateWeather(WeatherModel model)
     {
         _temperatureText.text = $"Сегодня - {model.Temperature}";
-        _forecastText.text = model.Forecast;
         StartCoroutine(LoadWeatherIcon(model.IconUrl));
     }
 
     public void ShowError(string message)
     {
         _temperatureText.text = "Ошибка";
-        _forecastText.text = message;
     }
 
     public void ShowLoader(bool isActive)
